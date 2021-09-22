@@ -34,3 +34,5 @@ plt.figure()
 plt.plot(time_values, m2)
 plt.xlabel("Time after cue onset (s)")
 plt.title(f"Calcium measurements averaged across all {num_trials} trials")
+
+plt.show()
