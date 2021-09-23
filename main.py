@@ -28,3 +28,5 @@ row_means = np.mean(calcium, axis = 1)
 plt.plot(time_values, row_means)
 plt.xlabel("Time after cue onset (s)")
 plt.title(f"Calcium measurements averaged across all {np.shape(calcium)[1]} trials")
+
+plt.show()
