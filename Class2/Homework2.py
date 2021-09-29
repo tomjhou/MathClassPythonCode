@@ -3,6 +3,9 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import sounddevice as sd
 
+# If you get error "No module named 'sounddevice'", please do one of the following:
+# In PyCharm, click File, Settings, Project, Interpreter. Then add sounddevice.
+# In Anaconda Python: open a command prompt, and type: conda install -c conda-forge python-sounddevice
 
 wave = np.load('wav2.npy')
 
@@ -36,8 +39,8 @@ plt.plot(freq_list[0:halfLen], f[0:halfLen])  # Show only first half
 plt.xscale('log')
 plt.title('FFT of input, log scale')
 
-# Solution: crappy low-pass filter with cutoff at 1500 Hz
-order = 51  # Highly recommend using an odd number for filter order.
+# Crappy low-pass filter with cutoff at 1500 Hz
+order = 51  # Recommend using an odd number for filter order.
 print(f'Starting to calculate convolution...')
 w = signal.firwin(order, 1500/nyquistRate)
 wave_Filtered = np.convolve(wave, w)
