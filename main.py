@@ -4,7 +4,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read Excel into a pandas data frame
-photo_frame = pd.read_excel("photometry.xlsx")
+#photo_frame = pd.io.excel.read_excel("photometry.xlsx")
+
+# Read directly from github
+print('Reading Excel file from github')
+photo_frame = pd.io.excel.read_excel("https://github.com/tomjhou/MathClassPythonCode/blob/master/photometry.xlsx?raw=true")
+print(f'Done reading file. Obtained array with shape {np.shape(photo_frame)}')
 
 # Convert to numpy array for easier indexing
 photo_array = photo_frame.to_numpy()
