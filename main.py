@@ -5,10 +5,6 @@ import matplotlib.pyplot as plt
 
 # Read Excel into a pandas data frame
 
-# Read Excel directly from github ... this will be slow if you don't have a fast internet connection
-# print('Reading Excel file from github')
-# photo_frame = pd.io.excel.read_excel("https://github.com/tomjhou/MathClassPythonCode/blob/master/photometry.xlsx?raw=true")
-
 print('Reading Excel file...')
 photo_frame = pd.io.excel.read_excel("photometry.xlsx")
 print(f'Done reading file. Obtained array with shape {np.shape(photo_frame)}')
@@ -39,5 +35,5 @@ plt.plot(time_values, row_means)
 plt.xlabel("Time after cue onset (s)")
 plt.title(f"Calcium measurements averaged across all {np.shape(calcium)[1]} trials")
 
-# If you haven't selected "run with Python console" option, you need this or else plot won't show.
-# plt.show()
+# If you haven't selected "run with Python console" option, you need this or else plot will close as soon as program completes.
+plt.show()

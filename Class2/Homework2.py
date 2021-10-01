@@ -3,9 +3,11 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import sounddevice as sd
 
-# If you get error "No module named 'sounddevice'", please do one of the following:
-# In PyCharm, click File, Settings, Project, Interpreter. Then add sounddevice.
-# In Anaconda Python: open a command prompt, and type: conda install -c conda-forge python-sounddevice
+#
+# When you run this for the first time, you need to install numpy, scipy, matplotlib, and sounddevice.
+#
+# In PyCharm, these are all installed by clicking File, Settings, Project, Interpreter. Then click plus sign to add packages.
+#
 
 wave = np.load('wav2.npy')
 
