@@ -1,66 +1,108 @@
+#
+# Import libraries
+#
+
+#
+# numpy, scipy, and matploblib come pre-installed with Anaconda.
+#
+# But "sounddevice" does not. When running for the first time, install it as follows:
+#
+# Step 1:
+# Windows: Open "Anaconda Prompt" from Windows start menu. (can also click the "CMD.exe" button in Anaconda Navigator)
+# Mac: Open the "Terminal" app.
+#
+# Step 2: Type the following command, and hit <Enter>:
+#
+# conda install -c conda-forge python-sounddevice
+#
+# You should see a lot of text while it installs. It may prompt you whether to proceed or not (say yes).
+# This will take about 1 minute total.
+#
+
 import numpy as np
 from scipy import signal
 import matplotlib.pyplot as plt
 import sounddevice as sd
 
+import time
+
 #
-# When you run this for the first time, you need to install numpy, scipy, matplotlib, and sounddevice.
-#
-# In PyCharm, these are all installed by clicking File, Settings, Project, Interpreter. Then click plus sign to add packages.
+# Load waveform from file
 #
 
-wave = np.load('wav2.npy')
+wave = np.load('../Class2/wav2.npy')
 
-sampleRate = 44100
+print(f'Loaded waveform with {wave.size} samples.')
 
-# Nyquist limit is half the sample rate, i.e. 22.05kHz instead of 44.1kHz.
-nyquistRate = sampleRate / 2
+# Downsample by 4x, so code will run faster.
+RESAMPLE_RATIO = 0.25
 
-# Get # of samples in waveform
-len_w = len(wave)
+wave = signal.resample(wave, int(wave.size * RESAMPLE_RATIO))
 
-print(f'Loaded waveform with {len_w} samples = {len_w / sampleRate} seconds.')
-print(f'Now playing through computer speaker. You should hear a piercing tone.')
-
-sd.play(wave)
+sampleRate = 44100 * RESAMPLE_RATIO
+print(f'Downsampled 4x to {wave.size} samples. Duration is {wave.size / sampleRate} seconds.')
 
 
-# Calculate FFT of raw waveform.
+#
+# Play through computer speaker
+#
+
+# Normalize amplitude to 1 because audio player clip values > 1
+wave = wave / max(wave)
+
+print(f'Playing wave.')
+VOLUME = 0.25
+sd.play(wave * VOLUME, sampleRate, blocking=True)
+
+#
+# Calculate and plot FFT
 f = np.abs(np.fft.fft(wave))  # Absolute value allows us to ignore phase
 
 # plot FFT vs frequency
-freq_list = np.arange(len_w) / len_w * sampleRate   # list of frequencies
+freq_list = np.linspace(0, sampleRate, num=f.size, endpoint=False)   # list of frequencies
 plt.plot(freq_list, f)
-plt.title('FFT of input waveform')
 
-# Sample FFT plot as before, but with log axis, and with second
-# half deleted, as it is mirror image of first half.
-plt.figure()
-halfLen = len_w // 2    # We use // instead of /, to force result to be integer
-plt.plot(freq_list[0:halfLen], f[0:halfLen])  # Show only first half
-plt.xscale('log')
-plt.title('FFT of input, log scale')
+plt.title('Input spectrum, log scale')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Amplitude')
 
-# Crappy low-pass filter with cutoff at 1500 Hz
-order = 51  # Recommend using an odd number for filter order.
-print(f'Starting to calculate convolution...')
-w = signal.firwin(order, 1500/nyquistRate)
-wave_Filtered = np.convolve(wave, w)
-print(f'Done calculating convolution.')
+#
+# Implement low-pass filter
+
+# Filter order. Should be an odd number
+order = 100001
+
+# Nyquist limit is half the sample rate
+nyquist = sampleRate / 2
+
+# Generate filter "kernel"
+kernel = signal.firwin(order, [1500/nyquist])
+
+# Convolve kernel with original wave
+print(f'Calculating convolution. Might take a few seconds if filter order is large ...')
+t0 = time.time()
+wave2 = np.convolve(wave, kernel)
+
+print(f'Done in {time.time() - t0:.3f} seconds!')
+
+#
+# Calculate FFT of filtered waveform.
+#
+
+f2 = np.abs(np.fft.fft(wave2))
+
+# Generate list of frequency values
+freq_list2 = np.linspace(0, sampleRate, num=f2.size, endpoint=False)
+
+# plot FFT vs frequency
+plt.plot(freq_list2, f2)
 
 
-# plot FFT of final output, log scales
-plt.figure()
-fft_filtered = abs(np.fft.fft(wave_Filtered))
-len_filtered = len(fft_filtered)   # convolution increased length. Have to recalculate frequency list.
-freq_list_filtered = np.arange(len_filtered) / len_filtered * sampleRate   # list of frequencies
-halfLen = len_filtered // 2
-plt.plot(freq_list_filtered[:halfLen], fft_filtered[:halfLen])
-plt.xscale('log')
-plt.yscale('log')
-plt.title('FFT after filter')
+#
+# Play filtered result through computer speaker
+#
 
-print('Now playing filtered signal through computer speaker. It will still sound like a piercing tone.')
-print('Your homework is to improve this crappy filter to reveal the underlying musical piece.')
+print(f'Playing filtered wave through computer speaker.')
 
-plt.show()
+# Normalize amplitude to 1, again to satisfy audio player.
+sd.play(wave2 / max(wave2), sampleRate, blocking=True)
