@@ -56,11 +56,11 @@ sd.play(wave * VOLUME, sampleRate, blocking=True)
 
 #
 # Calculate and plot FFT
-f = np.abs(np.fft.fft(wave))  # Absolute value allows us to ignore phase
+f = np.fft.fft(wave)  # Absolute value allows us to ignore phase
 
 # plot FFT vs frequency
 freq_list = np.linspace(0, sampleRate, num=f.size, endpoint=False)   # list of frequencies
-plt.plot(freq_list, f)
+plt.plot(freq_list, np.abs(f))
 
 plt.title('Input spectrum, log scale')
 plt.xlabel('Frequency (Hz)')
@@ -89,13 +89,13 @@ print(f'Done in {time.time() - t0:.3f} seconds!')
 # Calculate FFT of filtered waveform.
 #
 
-f2 = np.abs(np.fft.fft(wave2))
+f2 = np.fft.fft(wave2)
 
 # Generate list of frequency values
 freq_list2 = np.linspace(0, sampleRate, num=f2.size, endpoint=False)
 
 # plot FFT vs frequency
-plt.plot(freq_list2, f2)
+plt.plot(freq_list2, np.abs(f2))
 
 
 #
